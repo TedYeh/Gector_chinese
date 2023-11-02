@@ -276,7 +276,9 @@ def load_texts_from_fp(file_path):
                 src_texts.append(line[0])
                 trg_texts.append(line[1])
     elif '.json' in file_path:
-        json_data = json.load(open(file_path, 'r', encoding='utf-8'))
+        json_data = []
+        for line in open(file_path, 'r', encoding='utf-8').readlines():            
+            json_data.append(json.loads(line))
         for line in tqdm(json_data, ncols=100):
             if isinstance(line['source'], str) and \
                     isinstance(line['target'], str):
@@ -322,6 +324,13 @@ dataset_mappings = {
         "correct_tags_file": args.cail2022_correct_tags_path,
         "detect_tags_file": args.cail2022_detect_tags_path,
     },
+    "wang": {
+        "train": args.wang_train_path,
+        "dev": args.wang_dev_path,
+        "test": args.wang_test_path,
+        "correct_tags_file": args.wang_correct_tags_path,
+        "detect_tags_file": args.wang_detect_tags_path,
+    },
 }
 
 if __name__ == '__main__':
@@ -340,6 +349,7 @@ if __name__ == '__main__':
 
     train_src_texts, train_trg_texts = load_texts_from_fp(dataset_mappings[args.data_name]["train"])
     dev_src_texts, dev_trg_texts = load_texts_from_fp(dataset_mappings[args.data_name]["dev"])
+    test_src_texts, test_trg_texts = load_texts_from_fp(dataset_mappings[args.data_name]["test"])
     train_dataset = DatasetCTC(in_model_dir=args.bert_dir,
                                src_texts=train_src_texts,
                                trg_texts=train_trg_texts,
@@ -357,13 +367,23 @@ if __name__ == '__main__':
                              correct_tags_file=dataset_mappings[args.data_name]["correct_tags_file"],
                              detect_tags_file=dataset_mappings[args.data_name]["detect_tags_file"],
                              _loss_ignore_id=-100)
+    
+    test_dataset = DatasetCTC(in_model_dir=args.bert_dir,
+                             src_texts=test_src_texts,
+                             trg_texts=test_trg_texts,
+                             max_seq_len=args.max_seq_len,
+                             ctc_label_vocab_dir=args.ctc_vocab_dir,
+                             correct_tags_file=dataset_mappings[args.data_name]["correct_tags_file"],
+                             detect_tags_file=dataset_mappings[args.data_name]["detect_tags_file"],
+                             _loss_ignore_id=-100)
 
-    logger.info("训练集数据：{}条 验证集数据：{}条".format(len(train_dataset), len(dev_dataset)))
+    logger.info("训练集数据：{}条 验证集数据：{}条 測試集数据：{}条".format(len(train_dataset), len(dev_dataset), len(test_dataset)))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("使用【{}】".format(device))
     batch_size = args.batch_size
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
-    dev_loader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+    dev_loader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
 
     model = ModelingCtcBert(args)
     model.to(device)
@@ -372,15 +392,15 @@ if __name__ == '__main__':
         args,
         train_loader,
         dev_loader,
-        dev_loader,
+        test_loader,
         model,
         device
     )
 
-    trainer.train()
+    #trainer.train()
 
     id2label = train_dataset.id2ctag
-    ckpt_path = "./checkpoints/{}/roberta_model.pt".format(args.data_name)
+    ckpt_path = "./checkpoints/{}/{}_model.pt".format(args.data_name, args.model_name)
     model = ModelingCtcBert(args)
     model.load_state_dict(torch.load(ckpt_path, map_location=torch.device('cpu')))
 
@@ -423,24 +443,20 @@ if __name__ == '__main__':
         print("=" * 100)
 
     results = []
-    for src, trg in zip(dev_src_texts, dev_trg_texts):
-        res_tmp = {}
-        res = trainer.predict(src, ctc_tokenizer, model, device, id2label)
-        source = res["source"]
-        pred = res["pred"]
-        target = trg
-        res_tmp["source"] = source
-        res_tmp["pred"] = pred
-        res_tmp["target"] = target
-        if source != target:
-            res_tmp["type"] = "negative"
-        else:
-            res_tmp["type"] = "positive"
-        results.append(res_tmp)
-
     result_path = "{}_results.json".format(args.data_name)
     with open(result_path, "w") as fp:
-        json.dump(results, fp, ensure_ascii=False)
+        for src, trg in zip(test_src_texts, test_trg_texts):
+            res_tmp = {}
+            res = trainer.predict(src, ctc_tokenizer, model, device, id2label)
+            source = res["source"]
+            pred = res["pred"]
+            target = trg
+            res_tmp["input_text"] = source
+            res_tmp["target_text"] = target
+            res_tmp["predict_after"] = pred
+            
+            results.append(res_tmp)        
+            fp.write(json.dumps(res_tmp, ensure_ascii=False)+'\n')
 
     from evaluate import get_metric
 

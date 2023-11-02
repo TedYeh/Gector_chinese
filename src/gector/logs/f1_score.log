@@ -1,19 +1,19 @@
 {
     "token_level:[detect_precision, detect_recall, detect_f1]": [
-        0.5827123695976155,
-        0.7240740740740741,
-        0.6457
+        0.6471885336273429,
+        0.7458703939008895,
+        0.693
     ],
     "token_level:[correct_precision, correct_recall, correct_f1] ": [
-        0.35171385991058124,
-        0.43703703703703706,
-        0.3898
+        0.619625137816979,
+        0.7141041931385006,
+        0.6635
     ],
-    "token_level:f1": 0.59452,
+    "token_level:f1": 0.6871,
     "sentence_level:[correct_precision, correct_recall]": [
-        0.3404255319148936,
-        0.35555555555555557
+        0.4716981132075472,
+        0.6143667296786389
     ],
-    "sentence_level:f1": 0.3478,
-    "final_f1": 0.5452
+    "sentence_level:f1": 0.5337,
+    "final_f1": 0.6564
 }

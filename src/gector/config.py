@@ -1,13 +1,13 @@
 class Args:
-    bert_dir = "../model_hub/chinese-bert-wwm-ext"
+    bert_dir = "hfl/chinese-macbert-base"
     output_dir = "./checkpoints/"
     ctc_vocab_dir = "./data/ctc_vocab/"
     detect_tags_file = "ctc_detect_tags.txt"
     log_dir = "./logs/"
 
-    data_name = "cail2022"
-    model_name = "roberta"
-    correct_tags_file = "ctc_correct_sighan13_tags.txt"
+    data_name = "wang"
+    model_name = "macbert"
+    correct_tags_file = "ctc_correct_wang_tags.txt"
 
     warmup_proportion = 0.01
     learning_rate = 3e-5
@@ -16,12 +16,19 @@ class Args:
     max_seq_len = 128
     use_tensorboard = False
     batch_size = 64
-    epochs = 30
-    eval_step = 100
+    epochs = 10
+    eval_step = 5000
     max_grad_norm = 1.0
 
     detect_vocab_size = 2
     correct_vocab_size = 20675
+
+    # wang
+    wang_train_path = "./data/wang/train.json"
+    wang_dev_path = "./data/wang/dev.json"
+    wang_test_path = "./data/wang/csc_test_14_gector.json"
+    wang_detect_tags_path = "ctc_detect_tags.txt"
+    wang_correct_tags_path = "ctc_correct_wang_tags.txt"
 
     # midu2022
     midu_train_path = "./data/midu2022/preliminary_extend_train.json"

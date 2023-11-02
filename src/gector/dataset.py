@@ -58,6 +58,29 @@ class DatasetCTC(Dataset):
         self.replace_unk_c_tag_id = self.ctag2id['[REPLACE_UNK]']
         self.append_unk_c_tag_id = self.ctag2id['[APPEND_UNK]']
 
+        with open('./data/字音混淆集_s13.txt', 'r', encoding='utf-8') as confusion:
+            n = 0
+            for line in confusion.readlines()+[str(chr(c+65248)) for c in range(33, 127)]:
+                token = line.split('　')[0]
+                n+=1
+                self.tokenizer.add_tokens([token])
+        with open('./data/字音混淆集.txt', 'r', encoding='utf-8') as confusion:
+            for line in confusion.readlines():
+                token = line.split('　')[0]
+                n+=1
+                self.tokenizer.add_tokens([token])
+        with open('./data/wordtest4.txt', 'r', encoding='utf-8') as confusion:
+            for line in confusion.readlines():
+                token = line.split(',')[0]
+                n+=1
+                self.tokenizer.add_tokens([token])
+        
+        with open('./data/vocab.txt', 'r', encoding='utf-8') as confusion:
+            for line in confusion.readlines():
+                n+=1
+                self.tokenizer.add_tokens([line.replace('\n', '')])
+            
+
         # voab id
         try:
             self._start_vocab_id = self.tokenizer.vocab['[START]']
