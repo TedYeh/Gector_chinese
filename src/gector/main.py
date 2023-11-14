@@ -250,11 +250,13 @@ class Trainer:
             pre_text = []
             for d, c, t in zip(detect_outputs, correct_outputs, ["始"] + text):
                 clabel = id2label[c]
-                if "APPEND" in clabel:
-                    pre_text.append(clabel)
+                #rint(d, c, t, clabel)
+                #nput()
+                if "$APPEND" in clabel:
+                    #pre_text.append(clabel)
                     insert = clabel.split("_")[-1]
                     pre_text.append(insert)
-                elif "DELETE" in clabel:
+                elif "$DELETE" in clabel:
                     continue
                 elif "$REPLACE" in clabel:
                     replace = clabel.split("_")[-1]
@@ -331,6 +333,20 @@ dataset_mappings = {
         "correct_tags_file": args.wang_correct_tags_path,
         "detect_tags_file": args.wang_detect_tags_path,
     },
+    "nlpcc": {
+        "train": args.nlpcc_train_path,
+        "dev": args.nlpcc_dev_path,
+        "test": args.nlpcc_test_path,
+        "correct_tags_file": args.correct_tags_file,
+        "detect_tags_file": args.detect_tags_file,
+    },
+    "nlpcc_sw": {
+        "train": args.nlpcc_sw_train_path,
+        "dev": args.nlpcc_sw_dev_path,
+        "test": args.nlpcc_sw_test_path,
+        "correct_tags_file": args.correct_tags_file,
+        "detect_tags_file": args.detect_tags_file,
+    },
 }
 
 if __name__ == '__main__':
@@ -344,7 +360,7 @@ if __name__ == '__main__':
         vocab_szie = len(fp.read().strip().split("\n"))
     args.correct_vocab_size = vocab_szie
 
-    logger.info("使用模型【{}】，使用数据集：【{}】".format(args.model_name, args.data_name))
+    logger.info("使用模型【{}】，使用語料集：【{}】".format(args.model_name, args.data_name))
     ctc_tokenizer = CtcTokenizer.from_pretrained(args.bert_dir)
 
     train_src_texts, train_trg_texts = load_texts_from_fp(dataset_mappings[args.data_name]["train"])
@@ -377,7 +393,7 @@ if __name__ == '__main__':
                              detect_tags_file=dataset_mappings[args.data_name]["detect_tags_file"],
                              _loss_ignore_id=-100)
 
-    logger.info("训练集数据：{}条 验证集数据：{}条 測試集数据：{}条".format(len(train_dataset), len(dev_dataset), len(test_dataset)))
+    logger.info("訓練集：{}條 驗證集：{}條 測試集：{}條".format(len(train_dataset), len(dev_dataset), len(test_dataset)))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("使用【{}】".format(device))
     batch_size = args.batch_size
@@ -443,7 +459,7 @@ if __name__ == '__main__':
         print("=" * 100)
 
     results = []
-    result_path = "{}_results.json".format(args.data_name)
+    result_path = "{}_results_15.json".format(args.data_name)
     with open(result_path, "w") as fp:
         for src, trg in zip(test_src_texts, test_trg_texts):
             res_tmp = {}

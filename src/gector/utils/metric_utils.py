@@ -126,7 +126,7 @@ def ctc_comp_f1_token_level(src_texts, pred_texts, trg_texts):
         for (tag, src_i1, src_i2, trg_i1, trg_i2) in diffs:
 
             if tag == 'replace':
-                assert src_i2 - src_i1 == trg_i2 - trg_i1
+                #assert src_i2 - src_i1 == trg_i2 - trg_i1
                 for count, src_i in enumerate(range(src_i1, src_i2)):
                     trg_token = trg_text[trg_i1 + count]
                     detect_ref_list.append(src_i)

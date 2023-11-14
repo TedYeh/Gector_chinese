@@ -1,13 +1,13 @@
 class Args:
-    bert_dir = "hfl/chinese-macbert-base"
+    bert_dir = "hfl/chinese-macbert-large"
     output_dir = "./checkpoints/"
     ctc_vocab_dir = "./data/ctc_vocab/"
     detect_tags_file = "ctc_detect_tags.txt"
     log_dir = "./logs/"
 
     data_name = "wang"
-    model_name = "macbert"
-    correct_tags_file = "ctc_correct_wang_tags.txt"
+    model_name = "macbert_large"
+    correct_tags_file = "ctc_correct_tags.txt"
 
     warmup_proportion = 0.01
     learning_rate = 3e-5
@@ -15,7 +15,7 @@ class Args:
     seed = 999
     max_seq_len = 128
     use_tensorboard = False
-    batch_size = 64
+    batch_size = 128
     epochs = 10
     eval_step = 5000
     max_grad_norm = 1.0
@@ -23,10 +23,24 @@ class Args:
     detect_vocab_size = 2
     correct_vocab_size = 20675
 
+    # nlpcc
+    nlpcc_train_path = "./data/nlpcc/train.json"
+    nlpcc_dev_path = "./data/nlpcc/dev.json"
+    nlpcc_test_path = "./data/nlpcc/CGED20_testdata_nsp.json"
+    nlpcc_detect_tags_path = "ctc_detect_tags.txt"
+    nlpcc_correct_tags_path = "ctc_correct_tags.txt"
+
+    # nlpcc_sw
+    nlpcc_sw_train_path = "./data/nlpcc_sw/train.json"
+    nlpcc_sw_dev_path = "./data/nlpcc_sw/dev.json"
+    nlpcc_sw_test_path = "./data/nlpcc/CGED20_testdata_nsp.json"
+    nlpcc_sw_detect_tags_path = "ctc_detect_tags.txt"
+    nlpcc_sw_correct_tags_path = "ctc_correct_tags.txt"
+
     # wang
     wang_train_path = "./data/wang/train.json"
     wang_dev_path = "./data/wang/dev.json"
-    wang_test_path = "./data/wang/csc_test_14_gector.json"
+    wang_test_path = "./data/wang/test.json"
     wang_detect_tags_path = "ctc_detect_tags.txt"
     wang_correct_tags_path = "ctc_correct_wang_tags.txt"
 
